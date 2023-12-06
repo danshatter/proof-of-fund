@@ -1,0 +1,2216 @@
+openapi: '3.0.3'
+info:
+  title: Proof of Fund (JAPA)
+  description: Documentation for Proof of Fund (JAPA)
+  version: '1.0'
+servers:
+  - url: https://japaproof.ddns.net
+    description: Staging Environment
+  - url: http://localhost:8000
+    description: Development Environment
+paths:
+  /api/register:
+    post:
+      tags: [User]
+      summary: Register as a user
+      description: Register as a user
+      requestBody:
+        description: Data for user registration
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  description: The first name of the user
+                  type: string
+                  example: oluyemi
+                last_name:
+                  description: The last name of the user
+                  type: string
+                  example: adebayo
+                email:
+                  description: The email of the user
+                  type: string
+                  example: oluyemiadebayo@japa.com
+                phone:
+                  description: The phone number of the user
+                  type: string
+                  example: '08123456789'
+                date_of_birth:
+                  description: The date of birth of the user (In the format YYYY-MM-DD)
+                  type: string
+                  format: date
+                  example: 1990-01-31
+                password:
+                  description: The password of the user
+                  type: string
+                  format: password
+                  example: password
+                password_confirmation:
+                  description: The password confirmation of the user
+                  type: string
+                  format: password
+                  example: password
+                referral_code:
+                  description: Referral code of a referrer
+                  type: string
+                  example: OLUG52M8
+              required:
+                - first_name
+                - last_name
+                - email
+                - phone
+                - date_of_birth
+                - password
+                - password_confirmation
+        required: true
+      responses:
+        '201':
+          description: User registered
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/verify-user:
+    put:
+      tags: [User]
+      summary: Verify a user
+      description: Verify a user
+      requestBody:
+        description: Data for user verification
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                phone:
+                  description: The phone number of the user
+                  type: string
+                  example: '08123456789'
+                otp:
+                  description: The generated OTP
+                  type: string
+                  example: '1234'
+              required:
+                - phone
+                - otp
+        required: true
+      responses:
+        '200':
+          description: Verification successful
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/resend-user-otp:
+    post:
+      tags: [User]
+      summary: Resend OTP for user verification and password resets
+      description: Resend OTP for user verification and password resets
+      requestBody:
+        description: Data for resending user OTP
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                phone:
+                  description: The phone number of the user
+                  type: string
+                  example: '08123456789'
+              required:
+                - phone
+        required: true
+      responses:
+        '200':
+          description: OTP sent successfully
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/confirm-bvn:
+    post:
+      tags: [User]
+      summary: Confirm the Bank Verification Number of a user
+      description: Confirm the Bank Verification Number of a user
+      requestBody:
+        description: Data for Bank Verification Number confirmation
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                bvn:
+                  description: The Bank Verification Number of the user
+                  type: string
+                  example: '22222222222'
+              required:
+                - bvn
+        required: true
+      responses:
+        '200':
+          description: BVN confirmation initiated, BVN verification successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/confirm-bvn-image:
+    post:
+      tags: [User]
+      summary: Confirm image tied to the Bank Verification Number
+      description: Confirm image tied to the Bank Verification Number
+      requestBody:
+        description: Data for Bank Verification Number image confirmation
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  description: The image to compare to
+                  type: string
+                  format: binary
+              required:
+                - image
+        required: true
+      responses:
+        '200':
+          description: BVN image confirmation successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/verify-bvn:
+    put:
+      tags: [User]
+      summary: Verify the Bank Verification Number of a user
+      description: Verify the Bank Verification Number of a user
+      requestBody:
+        description: Data for Bank Verification Number verification
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                phone:
+                  description: The phone number tied to the Bank Verification Number
+                  type: string
+                  example: '08123456789'
+                otp:
+                  description: The generate OTP sent to the phone number tied to the Bank Verification Number
+                  type: string
+                  example: '123456'
+              required:
+                - phone
+                - otp
+        required: true
+      responses:
+        '200':
+          description: BVN verification successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/resend-bvn-otp:
+    post:
+      tags: [User]
+      summary: Resend OTP for Bank Verification Number verification
+      description: Resend OTP for Bank Verification Number verification
+      requestBody:
+        description: Data for resending OTP for Bank Verification Number verification
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                bvn:
+                  description: The Bank Verification Number (BVN)
+                  type: string
+                  example: '22222222222'
+              required:
+                - bvn
+        required: true
+      responses:
+        '200':
+          description: OTP resent successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/applications:
+    get:
+      tags: [User]
+      summary: Get Proof of Fund applications
+      description: Get Proof of Fund applications
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+    post:
+      tags: [User]
+      summary: Create a Proof of Fund application
+      description: Create a Proof of Fund application
+      requestBody:
+        description: Data for creating Proof of fund application
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                option_id:
+                  description: The ID of the option
+                  type: integer
+                  example: 1
+                tenure_id:
+                  description: The ID of the tenure
+                  type: integer
+                  example: 1
+                amount:
+                  description: The loan amount (Value is in kobo)
+                  type: integer
+                  example: 1000000
+                state_of_origin:
+                  description: The state of origin of the user
+                  type: string
+                  example: Abia
+                residential_address:
+                  description: The residential address of the user
+                  type: string
+                  example: 2 Allen Avenue, Ikeja
+                state_of_residence:
+                  description: The state of residence of the user
+                  type: string
+                  example: Lagos
+                proof_of_residence_image:
+                  description: The image to prove the residence of the user
+                  type: string
+                  format: binary
+                travel_purpose:
+                  description: The travel purpose
+                  type: string
+                  example: Education
+                travel_destination:
+                  description: The travel destination
+                  type: string
+                  example: Canada
+                international_passport_number:
+                  description: The international passport number of the user
+                  type: string
+                  example: JEYY3873ULEOY73
+                international_passport_expiry_date:
+                  description: The international passport expiry date of the user (In the format YYYY-MM-DD)
+                  type: string
+                  format: date
+                  example: 2025-01-31
+                international_passport_image:
+                  description: The image of the international passport of the user
+                  type: string
+                  format: binary
+                guarantor_first_name:
+                  description: The first name of the guarantor of the user
+                  type: string
+                  example: Kevin
+                guarantor_last_name:
+                  description: The last name of the guarantor of the user
+                  type: string
+                  example: James
+                guarantor_phone:
+                  description: The phone of the guarantor of the user
+                  type: string
+                  example: '08123456700'
+                guarantor_email:
+                  description: The email of the guarantor of the user
+                  type: string
+                  example: oluyemiadebayo3@japa.com
+                travel_sponsor_first_name:
+                  description: The first name of the travel sponsor of the user
+                  type: string
+                  example: Brian
+                travel_sponsor_last_name:
+                  description: The last name of the travel sponsor of the user
+                  type: string
+                  example: Nicholas
+                travel_sponsor_phone:
+                  description: The phone of the travel sponsor of the user
+                  type: string
+                  example: '08123456000'
+                travel_sponsor_email:
+                  description: The email of the travel sponsor of the user
+                  type: string
+                  example: oluyemiadebayo4@japa.com
+              required:
+                - option_id
+                - tenure_id
+                - amount
+                - state_of_origin
+                - residential_address
+                - state_of_residence
+                - proof_of_residence_image
+                - travel_purpose
+                - travel_destination
+                - international_passport_number
+                - international_passport_expiry_date
+                - international_passport_image
+                - guarantor_first_name
+                - guarantor_last_name
+                - guarantor_phone
+        required: true
+      responses:
+        '201':
+          description: Proof of funds created successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/applications/onboarding-payment:
+    post:
+      tags: [User]
+      summary: Make the payment for creating a Proof of Fund application
+      description: Make the payment for creating a Proof of Fund application
+      responses:
+        '200':
+          description: Payment initialized successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/applications/{applicationId}:
+    get:
+      tags: [User]
+      summary: Get a Proof of Fund application
+      description: Get a Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/applications/{applicationId}/payment:
+    post:
+      tags: [User]
+      summary: Initiate payment on a Proof of Fund application
+      description: Initiate payment on a Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: Data for updating Proof of Fund application
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                amount:
+                  description: The payment amount (Value is in Kobo)
+                  type: integer
+                  example: 1000000
+              required:
+                - amount
+        required: true
+      responses:
+        '200':
+          description: Payment initialized successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/applications/{applicationId}/transactions:
+    get:
+      tags: [User]
+      summary: Get transactions on a Proof of Fund application
+      description: Get transactions on a Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/applications/{applicationId}/transactions/{transactionId}:
+    get:
+      tags: [User]
+      summary: Get a transaction on a Proof of Fund application
+      description: Get a transaction on a Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: transactionId
+          in: path
+          description: The ID of the transaction
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found, Transaction not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+
+
+  /api/register-agent:
+    post:
+      tags: [Agent]
+      summary: Register as an agent
+      description: Register as an agent
+      requestBody:
+        description: Data for agent registration
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                register_as:
+                  description: The type of agent registration
+                  type: string
+                  enum:
+                    - INDIVIDUAL
+                    - AGENCY
+                email:
+                  description: The email of the agent
+                  type: string
+                  example: agent@japa.com
+                phone:
+                  description: The phone number of the agent
+                  type: string
+                  example: '08123450000'
+                address:
+                  description: The address of the agent
+                  type: string
+                  example: 2 Allen Avenue, Ikeja
+                request_message:
+                  description: The request message for agent application
+                  type: string
+                  example: I would love to register in your platform to help change people's lives
+                password:
+                  description: The password of the agent
+                  type: string
+                  format: password
+                  example: password
+                password_confirmation:
+                  description: The password confirmation of the agent
+                  type: string
+                  format: password
+                  example: password
+                first_name:
+                  description: The first name of the agent (Required when "register_as" is "INDIVIDUAL")
+                  type: string
+                  example: oluyemi
+                last_name:
+                  description: The last name of the agent (Required when "register_as" is "INDIVIDUAL")
+                  type: string
+                  example: adebayo
+                date_of_birth:
+                  description: The date of birth of the agent (In the format YYYY-MM-DD) (Required when "register_as" is "INDIVIDUAL")
+                  type: string
+                  format: date
+                  example: 1990-01-31
+                business_name:
+                  description: The name of the business of the agent (Required when "register_as" is "AGENCY")
+                  type: string
+                  example: Rimotechnology
+                business_website:
+                  description: The website of the business of the agent (Required when "register_as" is "AGENCY")
+                  type: string
+                  example: https://rimotechnology.com
+                business_state:
+                  description: The state of the location where the business of the agent is (Required when "register_as" is "AGENCY")
+                  type: string
+                  example: Lagos
+              required:
+                - register_as
+                - email
+                - phone
+                - address
+                - request_message
+                - password
+                - password_confirmation
+        required: true
+      responses:
+        '201':
+          description: Agent registered
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/resend-verification-email:
+    post:
+      tags: [Agent]
+      summary: Resend email for agent verification
+      description: Resend email for agent verification
+      requestBody:
+        description: Data for resending agent email verification
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  description: The email of the agent
+                  type: string
+                  example: agent@japa.com
+              required:
+                - email
+        required: true
+      responses:
+        '200':
+          description: Email sent successfully
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/accounts:
+    get:
+      tags: [Agent]
+      summary: Get accounts
+      description: Get accounts
+      responses:
+        '200':
+          description: Request Successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+    post:
+      tags: [Agent]
+      summary: Update account details
+      description: Update account details
+      requestBody:
+        description: Data for updating account details
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                account_number:
+                  description: The account number
+                  type: string
+                  example: '1100000000'
+                account_name:
+                  description: The account name
+                  type: string
+                  example: Benjamin Button
+                bank_code:
+                  description: The bank code
+                  type: string
+                  example: '058'
+              required:
+                - account_number
+                - account_name
+                - bank_code
+        required: true
+      responses:
+        '200':
+          description: Account added successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/accounts/{accountId}:
+    get:
+      tags: [Agent]
+      summary: Get an account
+      description: Get an account
+      parameters:
+        - name: accountId
+          in: path
+          description: The ID of the account
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request Successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Account not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/pending-applications:
+    get:
+      tags: [Agent]
+      summary: Get the pending applications of referred users
+      description: Get the pending applications of referred users
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/pending-applications-count:
+    get:
+      tags: [Agent]
+      summary: Get the pending applications count of referred users
+      description: Get the pending applications count of referred users
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/declined-applications:
+    get:
+      tags: [Agent]
+      summary: Get the declined applications of referred users
+      description: Get the declined applications of referred users
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/declined-applications-count:
+    get:
+      tags: [Agent]
+      summary: Get the declined applications count of referred users
+      description: Get the declined applications count of referred users
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/incoming-payments:
+    get:
+      tags: [Agent]
+      summary: Get the applications with incoming payments from referred users
+      description: Get the applications with incoming payments from referred users
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/incoming-payments-count:
+    get:
+      tags: [Agent]
+      summary: Get the applications with incoming payments count from referred users
+      description: Get the applications with incoming payments count from referred users
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/balances:
+    get:
+      tags: [Agent]
+      summary: Get balance
+      description: Get balance
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/referral-code:
+    get:
+      tags: [Agent]
+      summary: Get referral code
+      description: Get referral code
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/referral-list:
+    get:
+      tags: [Agent]
+      summary: Get referral list
+      description: Get referral list
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+
+
+  /api/login:
+    post:
+      tags: [User and Agent]
+      summary: Login as a registered user or agent
+      description: Login as a registered user or agent
+      requestBody:
+        description: Data for login
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  description: The email or phone number of the registered user or agent
+                  type: string
+                  example: oluyemiadebayo@japa.com
+                password:
+                  description: The pin of the registered user or agent
+                  type: string
+                  format: password
+                  example: password
+              required:
+                - username
+                - password
+        required: true
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Unauthenticated
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+
+  
+  /api/forgot-password:
+    post:
+      tags: [General]
+      summary: Initiate the forgot password process
+      description: Initiate the forgot password process
+      requestBody:
+        description: Data for initiating forgot password process
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                phone:
+                  description: The phone number of the user
+                  type: string
+                  example: '08123456789'
+              required:
+                - phone
+        required: true
+      responses:
+        '200':
+          description: OTP sent successfully
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/reset-password:
+    put:
+      tags: [General]
+      summary: Reset password
+      description: Reset password
+      requestBody:
+        description: Data for resetting password
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                phone:
+                  description: The phone number of the user
+                  type: string
+                  example: '08123456789'
+                password:
+                  description: The password of the user
+                  type: string
+                  format: password
+                  example: password
+                password_confirmation:
+                  description: The password confirmation of the user
+                  type: string
+                  format: password
+                  example: password
+                otp:
+                  description: The generated OTP
+                  type: string
+                  example: '111111'
+              required:
+                - phone
+                - password
+                - password_confirmation
+                - otp
+        required: true
+      responses:
+        '200':
+          description: Password reset successfully
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/options:
+    get:
+      tags: [General]
+      summary: Get options
+      description: Get options
+      responses:
+        '200':
+          description: Request successful
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/options/{optionId}:
+    get:
+      tags: [General]
+      summary: Get an option
+      description: Get an option
+      parameters:
+        - name: optionId
+          in: path
+          description: The ID of the option
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request successful
+        '404':
+          description: Option not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/tenures:
+    get:
+      tags: [General]
+      summary: Get tenures
+      description: Get tenures
+      responses:
+        '200':
+          description: Request successful
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/tenures/{tenureId}:
+    get:
+      tags: [General]
+      summary: Get an tenure
+      description: Get an tenure
+      parameters:
+        - name: tenureId
+          in: path
+          description: The ID of the tenure
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request successful
+        '404':
+          description: Tenure not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/loan-calculator:
+    get:
+      tags: [General]
+      summary: Calculate the details of a loan tenure
+      description: Calculate the details of a loan tenure
+      parameters:
+        - name: option_id
+          in: query
+          description: The ID of the option
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: tenure_id
+          in: query
+          description: The ID of the tenure
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: amount
+          in: query
+          description: The loan amount (Value is in Kobo)
+          required: true
+          schema:
+            type: integer
+            example: 1000000
+      responses:
+        '200':
+          description: Request successful
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/banks:
+    get:
+      tags: [General]
+      summary: Get Banks
+      description: Get Banks
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/banks/{bankCode}:
+    get:
+      tags: [General]
+      summary: Get a bank by code
+      description: Get a bank by code
+      parameters:
+        - name: bankCode
+          in: path
+          description: The code of the bank
+          required: true
+          schema:
+            type: string
+            example: '058'
+      responses:
+        '200':
+          description: Request successful
+        '404':
+          description: Bank not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/accounts/verify:
+    get:
+      tags: [General]
+      summary: Verify an account number
+      description: Verify an account number
+      parameters:
+        - name: account_number
+          in: query
+          description: The account number
+          required: true
+          schema:
+            type: string
+            example: '0140940818'
+        - name: bank_code
+          in: query
+          description: The bank code
+          required: true
+          schema:
+            type: string
+            example: '058'
+      responses:
+        '200':
+          description: Request successful
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/logout:
+    post:
+      tags: [General]
+      summary: Logout the authenticated user
+      description: Logout the authenticated user
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/change-password:
+    put:
+      tags: [General]
+      summary: Change password
+      description: Change password
+      requestBody:
+        description: Data for changing password
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  description: The current password of the user
+                  type: string
+                  format: password
+                  example: password
+                password:
+                  description: The new password of the user
+                  type: string
+                  format: password
+                  example: newpassword
+                password_confirmation:
+                  description: The new password confirmation of the user
+                  type: string
+                  format: password
+                  example: newpassword
+              required:
+                - current_password
+                - password
+                - password_confirmation
+        required: true
+      responses:
+        '200':
+          description: Password changed successfully
+        '401':
+          description: Unauthenticated
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+
+
+  /api/admin/register:
+    post:
+      tags: [Administrator]
+      summary: Register as an administrator (For Development Purposes)
+      description: Register as an administrator (For Development Purposes)
+      requestBody:
+        description: Data for administrator registration
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  description: The first name of the administrator
+                  type: string
+                  example: oluyemi
+                last_name:
+                  description: The last name of the administrator
+                  type: string
+                  example: adebayo
+                email:
+                  description: The email of the administrator
+                  type: string
+                  example: oluyemiadebayo2@japa.com
+                phone:
+                  description: The phone number of the administrator
+                  type: string
+                  example: '08123456780'
+                password:
+                  description: The password of the administrator
+                  type: string
+                  format: password
+                  example: password
+                password_confirmation:
+                  description: The password confirmation of the administrator
+                  type: string
+                  format: password
+                  example: password
+              required:
+                - first_name
+                - last_name
+                - email
+                - phone
+                - password
+                - password_confirmation
+        required: true
+      responses:
+        '201':
+          description: Administrator registered
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/admin/login:
+    post:
+      tags: [Administrator]
+      summary: Login as an administrator
+      description: Login as an administrator
+      requestBody:
+        description: Data for administrator login
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  description: The email or phone number of the administrator
+                  type: string
+                  example: oluyemiadebayo2@japa.com
+                password:
+                  description: The pin of the administrator
+                  type: string
+                  format: password
+                  example: password
+              required:
+                - username
+                - password
+        required: true
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Unauthenticated
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/admin/options:
+    post:
+      tags: [Administrator]
+      summary: Create an option
+      description: Create an option
+      requestBody:
+        description: Data for administrator login
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                type:
+                  description: The type of option
+                  type: string
+                  example: Open a new bank account
+                interest:
+                  description: The interest on the option
+                  type: number
+                  example: 3.5
+              required:
+                - type
+                - interest
+        required: true
+      responses:
+        '201':
+          description: Option created successfully
+        '401':
+          description: Unauthenticated
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/options/{optionId}:
+    parameters:
+      - name: optionId
+        in: path
+        description: The ID of the option
+        required: true
+        schema:
+          type: integer
+          example: 1
+    put:
+      tags: [Administrator]
+      summary: Update an option
+      description: Update an option
+      requestBody:
+        description: Data for administrator login
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                type:
+                  description: The type of option
+                  type: string
+                  example: Open a new bank account
+                interest:
+                  description: The interest on the option
+                  type: number
+                  example: 3.5
+              required:
+                - type
+                - interest
+        required: true
+      responses:
+        '200':
+          description: Option updated successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Option not found
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+    delete:
+      tags: [Administrator]
+      summary: Delete an option
+      description: Delete an option
+      responses:
+        '200':
+          description: Option deleted successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Option not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/tenures:
+    post:
+      tags: [Administrator]
+      summary: Create a tenure
+      description: Create a tenure
+      requestBody:
+        description: Data for creating a tenure
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                months:
+                  description: The number of months
+                  type: integer
+                  example: 1
+              required:
+                - months
+        required: true
+      responses:
+        '200':
+          description: Tenure created successfully
+        '401':
+          description: Unauthenticated
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/tenures/{tenureId}:
+    parameters:
+      - name: tenureId
+        in: path
+        description: The ID of the tenure
+        required: true
+        schema:
+          type: integer
+          example: 1
+    put:
+      tags: [Administrator]
+      summary: Update a tenure
+      description: Update a tenure
+      requestBody:
+        description: Data for updating a tenure
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                months:
+                  description: The number of months
+                  type: integer
+                  example: 1
+              required:
+                - months
+        required: true
+      responses:
+        '200':
+          description: Tenure updated successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenure not found
+        '422':
+          description: Validation errors
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+    delete:
+      tags: [Administrator]
+      summary: Delete a tenure
+      description: Delete a tenure
+      responses:
+        '200':
+          description: Tenure deleted successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenure not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/applications:
+    get:
+      tags: [Administrator]
+      summary: Get Proof of Fund applications
+      description: Get Proof of Fund applications
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/applications/{applicationId}:
+    get:
+      tags: [Administrator]
+      summary: Get a Proof of Fund application
+      description: Get a Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/applications/{applicationId}/passport-details:
+    get:
+      tags: [Administrator]
+      summary: Get the international passport details of the user tied to the Proof of Fund application
+      description: Get the international passport details of the user tied to the Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/applications/{applicationId}/status:
+    put:
+      tags: [Administrator]
+      summary: Update the status of a Proof of Fund application
+      description: Update the status of a Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: Data for updating Proof of Fund application
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                status:
+                  description: The status of the application
+                  type: string
+                  enum:
+                    - PENDING
+                    - IN REVIEW
+                    - REJECTED
+                    - ACCEPTED
+                    - OPEN
+                    - COMPLETED
+              required:
+                - status
+        required: true
+      responses:
+        '200':
+          description: Application status updated successfully
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/applications/{applicationId}/transactions:
+    get:
+      tags: [Administrator]
+      summary: Get transactions on a Proof of Fund application
+      description: Get transactions on a Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/applications/{applicationId}/transactions/{transactionId}:
+    get:
+      tags: [Administrator]
+      summary: Get a transaction on a Proof of Fund application
+      description: Get a transaction on a Proof of Fund application
+      parameters:
+        - name: applicationId
+          in: path
+          description: The ID of the Proof of Fund application
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: transactionId
+          in: path
+          description: The ID of the transaction
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '404':
+          description: Proof of Fund application not found, Transaction not found
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/users:
+    get:
+      tags: [Administrator]
+      summary: Get users
+      description: Get users
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/individual-agents:
+    get:
+      tags: [Administrator]
+      summary: Get individual agents
+      description: Get individual agents
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+  /api/admin/agencies:
+    get:
+      tags: [Administrator]
+      summary: Get agencies
+      description: Get agencies
+      parameters:
+        - name: page
+          in: query
+          description: The current page
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: The number of items to return per page (Default is 20)
+          required: false
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Request successful
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error. Report to Developer
+        default:
+          description: Fallback for undocumented status code
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - httpBearer: []
+components:
+  securitySchemes:
+    httpBearer:
+      type: http
+      description: Bearer token for authentication
+      scheme: bearer
+      bearerFormat: JWT
